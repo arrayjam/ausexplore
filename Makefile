@@ -31,7 +31,7 @@ csv/population.csv: sources/National\ Regional\ Profile\,\ Population\,\ ASGS\,\
 		"$<" > $@
 
 csv/sa2_2011.csv: $(sources)
-	node nrp -o $@ -- $^
+	node nrp --year 2011 -o $@ -- $^
 
 clean:
 	rm csv/*

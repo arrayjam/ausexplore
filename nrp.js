@@ -33,8 +33,6 @@ if (argv.help) return optimist.showHelp();
 
 var entries = {};
 
-console.log(argv);
-
 var q = queue(1);
 argv._.forEach(function(file) {
   q.defer(inputFile(dsv.csv), file);
