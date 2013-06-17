@@ -1,5 +1,6 @@
+sources = csv/economy.csv csv/environment.csv csv/industry.csv csv/population.csv
 
-all: csv/economy.csv csv/environment.csv csv/industry.csv csv/population.csv
+all: $(sources) csv/sa2_2011.csv
 
 csv/economy.csv: sources/National\ Regional\ Profile\,\ Economy\,\ ASGS\,\ 2007\-2011.csv
 	sed \
@@ -28,6 +29,9 @@ csv/population.csv: sources/National\ Regional\ Profile\,\ Population\,\ ASGS\,\
 		-e 's/Regional Code - Labels/region_name/'  \
 		-e 's/At 30 June - Labels/year/' \
 		"$<" > $@
+
+csv/sa2_2011.csv: $(sources)
+	node nrp -o $@ -- $^
 
 clean:
 	rm csv/*

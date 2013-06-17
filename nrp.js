@@ -19,6 +19,11 @@ var argv = optimist
     describe: "year to filter by",
     default: 2011,
   })
+  .options("l", {
+    alias: "code_length",
+    describe: "how many digits the region code length should be. SA2 is 9.",
+    default: 9,
+  })
   .check(function(argv) {
     if (!argv._.length) throw new Error("input required");
   })
@@ -26,7 +31,7 @@ var argv = optimist
 
 if (argv.help) return optimist.showHelp();
 
-var entries = [];
+var entries = {};
 
 console.log(argv);
 
@@ -44,20 +49,15 @@ function inputFile(dsv) {
       if (error) return callback(error);
 
 
-      var rows = dsv.parse(text);
-      entries.push(rows[0]);
-//      var rows = dsv.parse(text).filter(function(row) {
-//        if (entries[key] === undefined) entries[key] = [];
-//        entries[key].push(d3.keys(row));
-//
-//        return +row["At 30 June - Labels"] === argv.year;
-//      });
-//
-//      rows.forEach(function(row) {
-//        var key = row["Regional Code - Codes"];
-//        //if (entries[key] === undefined) entries[key] = [];
-//        //entries[key].push(row);
-//      });
+      //console.log(text);
+      if(text === undefined) return;
+      dsv.parse(text).forEach(function(row) {
+        if (+row.year === +argv.year && row.region_id.length === argv.code_length) {
+          if (entries[row.region_id] === null) entries[row.region_id] = {};
+
+          entries[row.region_id] = merge(row, entries[row.region_id]);
+        }
+      });
 
       callback(null);
     });
@@ -67,10 +67,7 @@ function inputFile(dsv) {
 function output(error) {
   if (error) return console.trace(error);
 
-  console.log(entries);
-  return;
-
-  var out = dsv.csv.format(entries);
+  var out = dsv.csv.format(values(entries));
 
   if (argv.o === "/dev/stdout") console.log(out);
   else fs.writeFileSync(argv.o, out, "utf8");
@@ -83,3 +80,15 @@ function qualify(file) {
   };
 }
 
+function merge(o1, o2) {
+  var o3 = {};
+  for (var attr in o1) { o3[attr] = o1[attr]; }
+  for (var attr in o2) { o3[attr] = o2[attr]; }
+  return o3;
+}
+
+function values(map) {
+  var vals = [];
+  for (var key in map) vals.push(map[key]);
+  return vals;
+}
