@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "optimist": "0.5",
+    "queue-async": "1.0",
+    "dsv": "0.0"
+  }
+}
