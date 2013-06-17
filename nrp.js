@@ -7,7 +7,7 @@ var fs = require("fs"),
     queue = require("queue-async");
 
 var argv = optimist
-  .usage("Usage: \033[1mnrp\033[0m [options] [files ...]\n\n")
+  .usage("Usage: \033[1mnrp\033[0m [options] [files ...]")
 
   .options("o", {
     alias: "out",
@@ -43,9 +43,21 @@ function inputFile(dsv) {
     fs.readFile(file.path, "utf8", function(error, text) {
       if (error) return callback(error);
 
-      entries = dsv.parse(text).filter(function(row) {
-        return +row["At 30 June - Labels"] === argv.year;
-      });
+
+      var rows = dsv.parse(text);
+      entries.push(rows[0]);
+//      var rows = dsv.parse(text).filter(function(row) {
+//        if (entries[key] === undefined) entries[key] = [];
+//        entries[key].push(d3.keys(row));
+//
+//        return +row["At 30 June - Labels"] === argv.year;
+//      });
+//
+//      rows.forEach(function(row) {
+//        var key = row["Regional Code - Codes"];
+//        //if (entries[key] === undefined) entries[key] = [];
+//        //entries[key].push(row);
+//      });
 
       callback(null);
     });
@@ -54,6 +66,9 @@ function inputFile(dsv) {
 
 function output(error) {
   if (error) return console.trace(error);
+
+  console.log(entries);
+  return;
 
   var out = dsv.csv.format(entries);
 
