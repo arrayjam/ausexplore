@@ -50,10 +50,10 @@ function inputFile(dsv) {
       //console.log(text);
       if(text === undefined) return;
       dsv.parse(text).forEach(function(row) {
-        if (+row.year === +argv.year && row.region_id.length === argv.code_length) {
-          if (entries[row.region_id] === null) entries[row.region_id] = {};
+        if (+row.year === +argv.year && row.SA2_MAIN.length === argv.code_length) {
+          if (entries[row.SA2_MAIN] === null) entries[row.SA2_MAIN] = {};
 
-          entries[row.region_id] = merge(row, entries[row.region_id]);
+          entries[row.SA2_MAIN] = merge(row, entries[row.SA2_MAIN]);
         }
       });
 
