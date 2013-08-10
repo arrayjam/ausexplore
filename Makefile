@@ -3,7 +3,7 @@ id_field = SA2_MAIN
 
 TOPOJSON = node --max_old_space_size=8192 /usr/bin/topojson
 
-all: data/sa2_2011.json
+all: data/sa2_2011.json data/national_regional_profile.csv
 
 csv/economy.csv: sources/National\ Regional\ Profile\,\ Economy\,\ ASGS\,\ 2007\-2011.csv
 	sed \
@@ -33,11 +33,12 @@ csv/population.csv: sources/National\ Regional\ Profile\,\ Population\,\ ASGS\,\
 		-e 's/At 30 June - Labels/year/' \
 		"$<" > $@
 
-csv/sa2_2011.csv: $(sources)
+data/national_regional_profile.csv: $(sources)
 	node nrp --year 2011 -o $@ -- $^
 
-data/sa2_2011.json: csv/sa2_2011.csv shp/SA2_2011_AUST.dbf shp/SA2_2011_AUST.prj shp/SA2_2011_AUST.shp shp/SA2_2011_AUST.shx
-	$(TOPOJSON) --id-property SA2_MAIN -e csv/sa2_2011.csv -p "region_name,internet=HOME INTERNET ACCESS (Census 2011) - Total internet connections (Percent)" -q 10000 --simplify-proportion 0.1 -o $@ -- sa2=shp/SA2_2011_AUST.shp
+data/sa2_2011.json: shp/SA2_2011_AUST.dbf shp/SA2_2011_AUST.prj shp/SA2_2011_AUST.shp shp/SA2_2011_AUST.shx
+	#$(TOPOJSON) --id-property SA2_MAIN -e csv/sa2_2011.csv -p "region_name,internet=HOME INTERNET ACCESS (Census 2011) - Total internet connections (Percent)" -q 10000 --simplify-proportion 0.1 -o $@ -- sa2=shp/SA2_2011_AUST.shp
+	$(TOPOJSON) --id-property SA2_MAIN -q 10000 --simplify-proportion 0.4 -o $@ -- sa2=shp/SA2_2011_AUST.shp
 
 clean:
 	rm csv/* data/*
