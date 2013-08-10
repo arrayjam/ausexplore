@@ -1,7 +1,8 @@
 {
   "dependencies": {
-    "optimist": "0.5",
-    "queue-async": "1.0",
-    "dsv": "0.0"
+    "queue-async": "~1.0.4",
+    "dsv": "0.0.2",
+    "optimist": "~0.6.0",
+    "topojson": "~1.2.3"
   }
 }
