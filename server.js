@@ -4,7 +4,11 @@ var http = require("http"),
   client = redis.createClient();
 
 http.createServer(function(request, response) {
-  if (request.method !== "POST") return;
+  var jsonType = { "Content-Type": "application/json" };
+  if (request.method !== "POST") {
+    response.writeHead(501, jsonType);
+    response.end(JSON.stringify({ message: "POST requests only" }));
+  }
 
   var body = "";
   request.on("data", function(data) {
@@ -12,15 +16,17 @@ http.createServer(function(request, response) {
   });
   request.on("end", function() {
     var post = qs.parse(body);
-    console.log(post);
-    console.log(post.prop);
     client.sismember("props", post.prop, function(error, reply) {
-      if (reply) {
-        console.log("We have a " + post.prop);
-      } else {
-        console.log("What's a " + post.prop + "?");
+      if (!reply) {
+        response.writeHead(501, jsonType);
+        response.end(JSON.stringify({ message: "No property named " + post.prop }));
       }
+
+      client.hgetall(post.prop, function(error, reply) {
+        response.writeHead(200, { "Content-Type": "application/json" });
+        response.end(JSON.stringify(reply));
+      });
     });
   });
-  response.end();
 }).listen(8888);
+
