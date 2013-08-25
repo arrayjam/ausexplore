@@ -2,16 +2,16 @@ function barChart() {
   if (!barChart.id) barChart.id = 0;
 
   var margin = {top: 10, right: 10, bottom: 20, left: 10},
-  x,
-  y = d3.scale.linear().range([75, 0]),
-  id = barChart.id++,
-  axis = d3.svg.axis().orient("bottom"),
-  brush = d3.svg.brush(),
-  brushDirty,
-  dimension,
-  group,
-  round,
-  selected;
+    x,
+    y = d3.scale.linear().range([75, 0]),
+    id = barChart.id++,
+    axis = d3.svg.axis().orient("bottom"),
+    brush = d3.svg.brush(),
+    brushDirty,
+    dimension,
+    group,
+    round,
+    selected;
 
   function chart(div) {
     var width = x.range()[1],
@@ -123,11 +123,11 @@ function barChart() {
     extent = brush.extent();
     if (round) g.select(".brush")
       .call(brush.extent(extent = extent.map(round)))
-    .selectAll(".resize")
-    .style("display", null);
+      .selectAll(".resize")
+      .style("display", null);
     g.select("#clip-" + id + " rect")
-    .attr("x", x(extent[0]))
-    .attr("width", x(extent[1]) - x(extent[0]));
+      .attr("x", x(extent[0]))
+      .attr("width", x(extent[1]) - x(extent[0]));
     dimension.filterRange(extent);
   });
 
