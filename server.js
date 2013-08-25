@@ -1,32 +1,32 @@
-var http = require("http"),
-  qs = require("querystring"),
+var express = require("express"),
+  app = express(),
   redis = require("redis"),
   client = redis.createClient();
 
-http.createServer(function(request, response) {
-  var jsonType = { "Content-Type": "application/json" };
-  if (request.method !== "POST") {
-    response.writeHead(501, jsonType);
-    response.end(JSON.stringify({ message: "POST requests only" }));
-  }
 
-  var body = "";
-  request.on("data", function(data) {
-    body += data;
+app.use(express.bodyParser());
+
+app.get("/props", function(req, res) {
+  client.smembers("props", function(error, reply) {
+    res.json(reply);
   });
-  request.on("end", function() {
-    var post = qs.parse(body);
-    client.sismember("props", post.prop, function(error, reply) {
-      if (!reply) {
-        response.writeHead(501, jsonType);
-        response.end(JSON.stringify({ message: "No property named " + post.prop }));
-      }
+});
 
-      client.hgetall(post.prop, function(error, reply) {
-        response.writeHead(200, { "Content-Type": "application/json" });
-        response.end(JSON.stringify(reply));
-      });
+app.post("/props", function(req, res) {
+  var prop = req.param("prop");
+  client.sismember("props", prop, function(error, reply) {
+    if (!reply) {
+      res.json(501, { message: "No property named " + prop });
+    }
+
+    client.hgetall(prop, function(error, reply) {
+      res.json(reply);
     });
   });
-}).listen(8888);
+});
+
+app.use(express.static(__dirname + "/public"));
+
+app.listen(8888);
+console.log("Listening on port 8888");
 
