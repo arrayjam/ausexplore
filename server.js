@@ -25,6 +25,11 @@ app.post("/props", function(req, res) {
   });
 });
 
+app.post("/", function(req, res) {
+  console.log(req.param("prop"));
+  res.json(req.param("prop"));
+});
+
 app.use(express.static(__dirname + "/public"));
 
 app.listen(8888);

@@ -10,6 +10,10 @@ csv/economy.csv: sources/National\ Regional\ Profile\,\ Economy\,\ ASGS\,\ 2007\
 		-e 's/Geography - Codes/$(id_field)/' \
 		-e 's/Geography - Labels/region_name/'  \
 		-e 's/Year - Labels/year/' \
+		-e 's/ - at 30 June//g' \
+		-e 's/ - year ended 30 June//g' \
+		-e 's/ - Year ended 30 June//g' \
+		-e 's/ - 2011 Census//g' \
 		"$<" > $@
 
 csv/environment.csv: sources/National\ Regional\ Profile\,\ Environment\,\ ASGS\,\ 2007\-2011.csv
@@ -17,6 +21,7 @@ csv/environment.csv: sources/National\ Regional\ Profile\,\ Environment\,\ ASGS\
 		-e 's/Geography - Codes/$(id_field)/' \
 		-e 's/Geography - Labels/region_name/'  \
 		-e 's/Year - Labels/year/' \
+		-e 's/ - year ended 30 June//g' \
 		"$<" > $@
 
 csv/industry.csv: sources/National\ Regional\ Profile\,\ Industry\,\ ASGS\,\ 2007\-2011.csv
@@ -24,6 +29,9 @@ csv/industry.csv: sources/National\ Regional\ Profile\,\ Industry\,\ ASGS\,\ 200
 		-e 's/Geography - Codes/$(id_field)/' \
 		-e 's/Geography - Labels/region_name/'  \
 		-e 's/Calendar Year - Labels/year/' \
+		-e 's/ - year ended 30 June//g' \
+		-e 's/(year ended 30 June)//g' \
+		-e 's/ - Census 2011//g' \
 		"$<" > $@
 
 csv/population.csv: sources/National\ Regional\ Profile\,\ Population\,\ ASGS\,\ 2007\-2011.csv
@@ -31,6 +39,12 @@ csv/population.csv: sources/National\ Regional\ Profile\,\ Population\,\ ASGS\,\
 		-e 's/Regional Code - Codes/$(id_field)/' \
 		-e 's/Regional Code - Labels/region_name/'  \
 		-e 's/At 30 June - Labels/year/' \
+		-e 's/ - at 30 June//g' \
+		-e 's/ - year ended 31 December//g' \
+		-e 's/ - Census 2011//g' \
+		-e 's/ - CENSUS 2011//g' \
+		-e 's/ (Census 2011)//g' \
+		-e 's/Born in/BORN ELSEWHERE - /g' \
 		"$<" > $@
 
 data/national_regional_profile.csv: $(sources)

@@ -1,3 +1,37 @@
+var app = {};
+app.templates = {};
+d3.selectAll("[type='text/template']")
+  .each(function() { app.templates[this.id] = strip(this.innerHTML); });
+
+
+function strip(text) {
+  return text.replace(/\n/g, "").replace(/\s+/g, " ");
+}
+
+d3.selectAll(".chart")
+    .classed("nochart", true)
+    .html(app.templates.nochart)
+    .on("click", function() {
+      var chartEl = this;
+      d3.json("/props", function (err, data) {
+        d3.select(chartEl)
+            .on("click", null)
+            .html(app.templates.choose)
+            .classed("nochart", false)
+            .classed("choose", true)
+          .select("select").selectAll("option")
+            .data(data.sort())
+          .enter().append("option")
+            .attr("value", function(d, i) { return i; })
+            .text(String);
+
+      });
+    });
+
+
+
+
+
 function barChart() {
   if (!barChart.id) barChart.id = 0;
 
@@ -11,51 +45,52 @@ function barChart() {
     dimension,
     group,
     round,
-    selected;
+    selected,
+    linear = d3.scale.linear();
 
   function chart(div) {
     var width = x.range()[1],
-    height = y.range()[0];
+      height = y.range()[0];
 
     y.domain([0, group.top(1)[0].value]);
 
     div.each(function() {
       var div = d3.select(this),
-      g = div.select("g");
+        g = div.select("g");
 
       // Create the skeletal chart.
       if (g.empty()) {
         div.select(".description").append("a")
-          .attr("href", "javascript:reset(" + id + ")")
-          .attr("class", "reset")
-          .text("Reset")
-          .style("display", "none");
+        .attr("href", "javascript:reset(" + id + ")")
+        .attr("class", "reset")
+        .text("Reset")
+        .style("display", "none");
 
         g = div.append("svg")
-          .attr("width", width + margin.left + margin.right)
-          .attr("height", height + margin.top + margin.bottom)
-          .append("g")
-          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
         g.append("clipPath")
-          .attr("id", "clip-" + id)
-          .append("rect")
-          .attr("width", width)
-          .attr("height", height);
+        .attr("id", "clip-" + id)
+        .append("rect")
+        .attr("width", width)
+        .attr("height", height);
 
         g.selectAll(".bar")
-          .data(["background", "foreground"])
-          .enter().append("g")
-          .attr("class", function(d) { return d + " bar"; })
-          .datum(group.all());
+        .data(["background", "foreground"])
+        .enter().append("g")
+        .attr("class", function(d) { return d + " bar"; })
+        .datum(group.all());
 
         g.selectAll(".foreground.bar")
-          .attr("clip-path", "url(#clip-" + id + ")");
+        .attr("clip-path", "url(#clip-" + id + ")");
 
         g.append("g")
-          .attr("class", "axis")
-          .attr("transform", "translate(0," + height + ")")
-          .call(axis);
+        .attr("class", "axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(axis);
 
         // Initialize the brush component with pretty resize handles.
         var gBrush = g.append("g").attr("class", "brush").call(brush);
@@ -70,13 +105,13 @@ function barChart() {
         div.select(".description a").style("display", brush.empty() ? "none" : null);
         if (brush.empty()) {
           g.selectAll("#clip-" + id + " rect")
-            .attr("x", 0)
-            .attr("width", width);
+          .attr("x", 0)
+          .attr("width", width);
         } else {
           var extent = brush.extent();
           g.selectAll("#clip-" + id + " rect")
-            .attr("x", x(extent[0]))
-            .attr("width", x(extent[1]) - x(extent[0]));
+          .attr("x", x(extent[0]))
+          .attr("width", x(extent[1]) - x(extent[0]));
         }
       }
 
@@ -85,10 +120,11 @@ function barChart() {
           .data(d, function(x) { return x.key; });
 
         bar.enter().append("path")
-          .attr("d", barPath);
+        .attr("d", barPath);
 
         bar.attr("d", barPath);
       });
+
       g.selectAll(".foreground path")
         .style("fill", function(d, i) { return selected ? linear(i) : "steelblue"; });
     });
@@ -99,8 +135,8 @@ function barChart() {
 
     function resizePath(d) {
       var e = +(d === "e"),
-      x = e ? 1 : -1,
-      y = height / 3;
+        x = e ? 1 : -1,
+        y = height / 3;
       return "M" + (0.5 * x) + "," + y +
         "A6,6 0 0 " + e + " " + (6.5 * x) + "," + (y + 6) +
         "V" + (2 * y - 6) +
@@ -120,14 +156,14 @@ function barChart() {
 
   brush.on("brush.chart", function() {
     var g = d3.select(this.parentNode),
-    extent = brush.extent();
+      extent = brush.extent();
     if (round) g.select(".brush")
       .call(brush.extent(extent = extent.map(round)))
-      .selectAll(".resize")
-      .style("display", null);
+    .selectAll(".resize")
+    .style("display", null);
     g.select("#clip-" + id + " rect")
-      .attr("x", x(extent[0]))
-      .attr("width", x(extent[1]) - x(extent[0]));
+    .attr("x", x(extent[0]))
+    .attr("width", x(extent[1]) - x(extent[0]));
     dimension.filterRange(extent);
   });
 
