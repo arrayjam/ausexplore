@@ -3,7 +3,7 @@ id_field = SA2_MAIN
 
 TOPOJSON = node --max_old_space_size=8192 /usr/bin/topojson
 
-all: data/sa2_2011.json data/national_regional_profile.csv
+all: data/sa2_2011.json data/national_regional_profile.csv data/redis
 
 csv/economy.csv: sources/National\ Regional\ Profile\,\ Economy\,\ ASGS\,\ 2007\-2011.csv
 	sed \
@@ -45,6 +45,11 @@ csv/population.csv: sources/National\ Regional\ Profile\,\ Population\,\ ASGS\,\
 		-e 's/ - CENSUS 2011//g' \
 		-e 's/ (Census 2011)//g' \
 		-e 's/Born in/BORN ELSEWHERE - /g' \
+		-e 's/Total Born Overseas/BORN ELSEWHERE - Total/g' \
+		-e 's/Population by Age group/AGE/g' \
+		-e 's/Population/AGE/g' \
+		-e 's/Qualifications/QUALIFICATIONS/g' \
+		-e 's/Unpaid Work/UNPAID WORK/g' \
 		"$<" > $@
 
 data/national_regional_profile.csv: $(sources)
@@ -54,5 +59,10 @@ data/sa2_2011.json: shp/SA2_2011_AUST.dbf shp/SA2_2011_AUST.prj shp/SA2_2011_AUS
 	#$(TOPOJSON) --id-property SA2_MAIN -e csv/sa2_2011.csv -p "region_name,internet=HOME INTERNET ACCESS (Census 2011) - Total internet connections (Percent)" -q 10000 --simplify-proportion 0.1 -o $@ -- sa2=shp/SA2_2011_AUST.shp
 	$(TOPOJSON) --id-property SA2_MAIN -q 10000 --simplify-proportion 0.4 -o $@ -- sa2=shp/SA2_2011_AUST.shp
 
+data/redis: data/national_regional_profile.csv
+	node lib/populate_redis.js
+	touch data/redis
+
 clean:
 	rm csv/* data/*
+	redis-cli -n 88 flushdb

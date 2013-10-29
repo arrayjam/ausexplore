@@ -3,6 +3,8 @@ var express = require("express"),
   redis = require("redis"),
   client = redis.createClient();
 
+client.select(88);
+
 
 app.use(express.bodyParser());
 
@@ -23,11 +25,6 @@ app.post("/props", function(req, res) {
       res.json(reply);
     });
   });
-});
-
-app.post("/", function(req, res) {
-  console.log(req.param("prop"));
-  res.json(req.param("prop"));
 });
 
 app.use(express.static(__dirname + "/public"));

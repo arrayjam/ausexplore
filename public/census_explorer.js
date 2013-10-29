@@ -16,15 +16,24 @@ d3.selectAll(".chart")
       d3.json("/props", function (err, data) {
         d3.select(chartEl)
             .on("click", null)
-            .html(app.templates.choose)
-            .classed("nochart", false)
-            .classed("choose", true)
-          .select("select").selectAll("option")
+            .html("")
+            .classed("nochart", false);
+
+        d3.select("#chooseDimension").selectAll("option")
             .data(data.sort())
           .enter().append("option")
-            .attr("value", function(d, i) { return i; })
+            .attr("value", String)
             .text(String);
 
+
+        $("#dimensionModal").modal({ show: true });
+
+        d3.select("#chooseDimension")
+          .on("change", function() {
+            $.post("/props", { prop: this.value });
+
+            console.log(this.value);
+          });
       });
     });
 
